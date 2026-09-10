@@ -1,0 +1,177 @@
+WIFI:
+    TXQ_STATE:
+        _delete: DUMMY
+        _add:
+            TX_ERROR_CLEAR:
+                description:  Clear the error status of a slot
+                addressOffset: 0x0
+                access: write
+                fields:
+                    SLOT_COLLISION%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x0
+                        bitWidth: 0x1
+                        description: Collision clear bit for a slot
+                    SLOT_TIMEOUT%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x10
+                        bitWidth: 0x1
+                        description: Timeout clear bit for a slot
+
+            TX_ERROR_STATUS:
+                description: Error status of a slot
+                addressOffset: 0x4
+                access: read
+                fields:
+                    SLOT_COLLISION%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x0
+                        bitWidth: 0x1
+                        description: Collision status bit for a slot
+                    SLOT_TIMEOUT%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x10
+                        bitWidth: 0x1
+                        description: Timeout status bit for a slot
+
+            TX_COMPLETE_CLEAR:
+                description: Clear the completion status of a slot
+                addressOffset: 0x8
+                access: write
+                fields: 
+                    SLOT%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x0
+                        bitWidth: 0x1
+                        description: Clear bit for a slot
+
+            TX_COMPLETE_STATUS:
+                description: Completion status of a slot
+                addressOffset: 0xc
+                access: read
+                fields:
+                    SLOT%s:
+                        dim: 0x5
+                        dimIncrement: 0x1
+                        bitOffset: 0x0
+                        bitWidth: 0x1
+                        description: Status bit for a slot
+
+    TX_SLOT_CONFIG%s:
+        _delete: DUMMY
+        _add:
+            CONF0:
+                description: "Three 10 bit fields written by mac_tx_set_htsig, bit 31 set by mac_tx_set_txop_q; printed as CONF2 by lmacProcessTxComplete"
+                addressOffset: 0x0
+                access: read-write
+            CONF1:
+                description: Bit 3 is cleared by hal_mac_tx_set_ppdu, meaning unknown
+                addressOffset: 0x4
+                access: read-write
+            CONFIG:
+                description: Config
+                addressOffset: 0x8
+                access: read-write
+                fields:
+                    TIMEOUT:
+                        bitOffset: 0x0
+                        bitWidth: 0xc
+                        access: read-write
+                    BACKOFF_TIME:
+                        bitOffset: 0xc
+                        bitWidth: 0xa
+                        access: read-write
+                    AIFSN:
+                        bitOffset: 0x18
+                        bitWidth: 0x4
+                        access: read-write
+            PLCP0:
+                description: PLCP0
+                addressOffset: 0xc
+                access: read-write
+                fields:
+                    DMA_ADDR:
+                        description: Bottom bits of address of dma_item
+                        bitOffset: 0x0
+                        bitWidth: 0x14
+                        access: read-write
+                    WAIT_FOR_ACK:
+                        description: Enables ACK timeouts
+                        bitOffset: 0x18
+                        bitWidth: 0x1
+                        access: read-write
+                    SLOT_VALID:
+                        description: Marks this slot as valid
+                        bitOffset: 0x1e
+                        bitWidth: 0x1
+                        access: read-write
+                    SLOT_ENABLED:
+                        description: Marks this slot as ready for transmission
+                        bitOffset: 0x1f
+                        bitWidth: 0x1
+                        access: read-write
+    _modify:
+        PLCP1%s:
+            description: PLCP1
+            access: read-write
+            fields:
+                LEN:
+                    description: Length of packet (in bytes)
+                    bitOffset: 0x0
+                    bitWidth: 0xc
+                    access: read-write
+                RATE:
+                    description: Packet rate (see wifi_phy_rate_t)
+                    bitOffset: 0xc
+                    bitWidth: 0x5
+                    access: read-write
+                KEY_SLOT_ID:
+                    description: Key slot to use for encryption
+                    bitOffset: 0x11
+                    bitWidth: 0x5
+                    access: read-write
+                IS_80211_N:
+                    description: Bit indicating if this is 802.11n
+                    bitOffset: 0x19
+                    bitWidth: 0x1
+                    access: read-write
+                BANDWIDTH:
+                    description: Zero indicates 20MHz and one indicates 40MHz
+                    bitOffset: 0x1c
+                    bitWidth: 0x1
+                    access: read-write
+                INTERFACE_ID:
+                    description: ID of the interface this transmission is from
+                    bitOffset: 0x1e
+                    bitWidth: 0x2
+                    access: read-write
+        PLCP2%s:
+            description: PLCP2
+            access: read-write
+            fields:
+                UNKNOWN:
+                    description: meaning unknown, set to one for TX
+                    bitOffset: 0x5
+                    bitWidth: 0x1
+        HT_SIG%s:
+            description: HT-SIG field in HT preamble
+            access: read-write
+        HT_UNKNOWN%s:
+            description: exact meaning and name unknown, related to HT
+            access: read-write
+            fields:
+                LENGTH:
+                    description: The length of the PPDU
+                    bitOffset: 0x0
+                    bitWidth: 0x14
+                    access: write
+        DURATION%s:
+            description: duration of the frame exchange
+            access: read-write
+        PMD%s:
+            access: read-write

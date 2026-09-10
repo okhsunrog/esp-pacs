@@ -1,0 +1,112 @@
+WIFI:
+    _modify:
+        FILTER_CONTROL%s:
+            acccess: read-write
+            description: Controls the RX filter for an interface
+            fields:
+                BLOCK_UNICAST:
+                    bitOffset: 0          
+                    bitWidth: 1
+                    access: read-write
+                    description: Block unicast frames not matching the address filter
+                BSSID_CHECK:
+                    bitOffset: 1
+                    bitWidth: 1
+                    access: read-write
+                    description: Check BSSID for filtering
+                BLOCK_MULTICAST:
+                    bitOffset: 2          
+                    bitWidth: 1
+                    access: read-write
+                    description: Block multicast frames not matching the address filter
+                SCAN_MODE:
+                    bitOffset: 4
+                    bitWidth: 1
+                    access: read-write
+                    description: Receive beacon frames
+                DATA_AND_MGMT_MODE:
+                    bitOffset: 8
+                    bitWidth: 1
+                    access: read-write
+                    description: Receive everything except control frames
+        RX_CTRL_FILTER%s:
+            access: read-write
+            description: Configures which control frames pass the RX filter. Setting a bit lets that frame type pass the filter.
+            fields:
+                CONTROL_WRAPPER:
+                    bitOffset: 23
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter Control Wrapper frames
+                BLOCK_ACK_REQUEST:
+                    bitOffset: 24
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter Block ACK Request frames
+                BLOCK_ACK:
+                    bitOffset: 25
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter Block ACK frames
+                PS_POLL:
+                    bitOffset: 26
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter PS-Poll frames
+                RTS:
+                    bitOffset: 27
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter RTS frames
+                CTS:
+                    bitOffset: 28
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter CTS frames
+                ACK:
+                    bitOffset: 29
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter ACK frames
+                CF_END:
+                    bitOffset: 30
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter CF-End frames
+                CF_END_CF_ACK:
+                    bitOffset: 31
+                    bitWidth: 1
+                    access: read-write
+                    description: Filter CF-End+CF-Ack frames
+                
+
+    FILTER_BANK%s:
+        _delete: DUMMY
+        _add:
+            ADDR_LOW%s:
+                dim: 4
+                dimIncrement: 0x8
+                description: First 4 bytes of the MAC address filter
+                addressOffset: 0x0
+                access: read-write
+            ADDR_HIGH%s:
+                dim: 4
+                dimIncrement: 0x8
+                description: Last 2 bytes of the MAC address filter and its enable bits
+                addressOffset: 0x4
+                access: read-write
+                fields:
+                    ADDR:
+                        bitOffset: 0x0
+                        bitWidth: 0x10
+                        access: read-write
+                    RA_ENABLED:
+                        description: Enables the filter in the RA bank (set by hal_mac_set_addr)
+                        bitOffset: 0x10
+                        bitWidth: 0x1
+                        access: read-write
+                    BSSID_ENABLED:
+                        description: Enables the filter in the BSSID bank (set by hal_mac_set_bssid)
+                        bitOffset: 0x1f
+                        bitWidth: 0x1
+                        access: read-write

@@ -1,0 +1,259 @@
+# Wi-Fi MAC register block of the ESP32-C6.
+#
+# Derived from the ESP32-C3 definitions by diffing the MMIO accesses of
+# identically named functions in the proprietary libpp/libnet80211 blobs of
+# both chips. The Wi-Fi 6 MAC keeps the layout of the Wi-Fi 4 MAC with
+# shifted blocks: the RX control and DMA registers moved down by 4, the
+# interrupt and TX queue state registers up by 0xc and 8, the RX filter banks
+# have no mask registers, the TX slot configuration has four words per slot
+# and the TX PLCP block uses a stride of 0x74. The PWR/TSF block lives at
+# 0x600ad000 (offset 0x9000) and is mirrored every 0x400 bytes.
+_add:
+    WIFI:
+        description: MAC controller for Wi-Fi peripheral
+        groupName: WIFI
+        baseAddress: 0x600a4000
+        size: 32
+        addressBlock:
+            offset: 0x0
+            size: 0x9400
+            usage: registers
+        registers:
+            RX_CTRL:
+                addressOffset: 0x80
+            FILTER_CONTROL%s:
+                dim: 4
+                dimIncrement: 4
+                addressOffset: 0xd8
+            RX_CTRL_FILTER%s:
+                dim: 4
+                dimIncrement: 4
+                addressOffset: 0xf8
+                access: read-write
+            CTRL:
+                description: Exact name and meaning unknown, used for initializing the MAC
+                addressOffset: 0xca8
+                access: read-write
+            PLCP1%s:
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12b8
+            TX_THRESHOLD%s:
+                description: Printed as "Thres" by lmacProcessTxComplete, presumably the RTS threshold of the slot
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12bc
+                access: read-write
+            TX_PTI%s:
+                description: Coexistence priorities of the TX slot, written by hal_set_tx_pti
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12c0
+                access: read-write
+            HT_SIG%s:
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12c4
+            TX_PWR%s:
+                description: "TX power per rate, one byte each for the data frame, its alternative, the RTS and its alternative. Written by hal_mac_tx_set_ppdu from the table hal_init_tx_pwr fills."
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12dc
+                access: read-write
+            HT_UNKNOWN%s:
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12e0
+            TX_LEN%s:
+                description: "PPDU length (bits 0..13), bandwidth (bits 22..23) and rate index (bits 28..31) written by mac_tx_set_len for HT and HE frames"
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12e8
+                access: read-write
+            PLCP2%s:
+                description: "Misc TX slot control: bit 1 is 40 MHz, bit 2 is always set, bit 4 is the PLCP2 bit of the S2, bits 6..13 the RTS/response rate, bits 22..23 HT, bits 24..27 TXOP frame count, bits 28..29 the queue"
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12ec
+            DURATION%s:
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x12f0
+            PMD%s:
+                description: TX result of the slot, read by hal_mac_get_txq_pmd and hal_mac_get_txq_complete
+                dim: 5
+                dimIncrement: 0x74
+                addressOffset: 0x1318
+            MAC_TIME:
+                addressOffset: 0x9000
+                access: read
+                description: Current value of the MAC timer
+            TSF_CTRL:
+                addressOffset: 0x9014
+                access: read-write
+                description: "Control for the per-interface TSF counters. Written by tsf_hal_get_counter_value, tsf_hal_set_counter_value and tsf_hal_set_tbtt_start_time."
+                fields:
+                    LATCH:
+                        description: Bit n latches the TSF counter of interface n into TSF_TIME for reading. Cleared again after the read.
+                        bitOffset: 0
+                        bitWidth: 4
+                    LOAD:
+                        description: Bit n loads the TSF counter of interface n from TSF_LOAD.
+                        bitOffset: 4
+                        bitWidth: 4
+                    LOAD_TBTT_START:
+                        description: Bit n loads the TBTT start time of interface n from TBTT_START.
+                        bitOffset: 8
+                        bitWidth: 4
+            TSF_LOAD_LOW:
+                addressOffset: 0x9018
+                access: read-write
+                description: Low word of the value loaded into a TSF counter
+            TSF_LOAD_HIGH:
+                addressOffset: 0x901c
+                access: read-write
+                description: High word of the value loaded into a TSF counter
+            TSF_TIME_LOW:
+                addressOffset: 0x9020
+                access: read
+                description: Low word of the latched TSF counter
+            TSF_TIME_HIGH:
+                addressOffset: 0x9024
+                access: read
+                description: High word of the latched TSF counter
+            TBTT_START:
+                addressOffset: 0x902c
+                access: read-write
+                description: TBTT start time, loaded into an interface with TSF_CTRL.LOAD_TBTT_START
+                fields:
+                    START_TIME:
+                        bitOffset: 0
+                        bitWidth: 26
+            TSF_CFG%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x9050
+                access: read-write
+                description: TSF and TBTT configuration of an interface
+                fields:
+                    TBTT_ENABLE:
+                        description: Set by tsf_hal_set_tbtt_enable
+                        bitOffset: 26
+                        bitWidth: 1
+                    TSF_ENABLE_AUX:
+                        description: Bit 27 is set together with TSF_ENABLE by tsf_hal_set_tsf_enable, meaning unknown
+                        bitOffset: 27
+                        bitWidth: 1
+                    TSF_ENABLE:
+                        description: Enables the TSF counter, checked by tsf_hal_is_tsf_enabled
+                        bitOffset: 31
+                        bitWidth: 1
+            TBTT_CFG%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x9054
+                access: read-write
+                description: TBTT interval and early time of an interface
+                fields:
+                    INTERVAL:
+                        description: Beacon interval in TUs (the blob shifts microseconds right by 10)
+                        bitOffset: 0
+                        bitWidth: 16
+                    EARLY_TIME:
+                        description: How much earlier than the TBTT the interrupt fires, set by tsf_hal_set_tbtt_early_time
+                        bitOffset: 16
+                        bitWidth: 16
+            TSF_TIMER_CFG%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x9074
+                access: read-write
+                description: Configuration of a TSF timer
+                fields:
+                    SOC_WAKEUP:
+                        description: Wake the SoC when the timer fires, set by tsf_hal_set_timer_soc_wakeup_enable
+                        bitOffset: 30
+                        bitWidth: 1
+                    ENABLE:
+                        description: Set by tsf_hal_set_timer_enable
+                        bitOffset: 31
+                        bitWidth: 1
+            TSF_TIMER_TARGET%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x9078
+                access: read-write
+                description: Target of a TSF timer, written by tsf_hal_set_timer_target
+            PWR_INT_ENABLE:
+                addressOffset: 0x90a8
+                access: read-write
+                description: "Interrupt enable for the WIFI_PWR interrupt. TBTT of interface n is bit (3 - n), TSF timer n is bit (7 - n)."
+
+WIFI:
+    _add:
+        _clusters:
+            FILTER_BANK%s:
+                dim: 2
+                dimIncrement: 0x5c
+                addressOffset: 0x0
+                description: "
+                    Filter banks for frame reception. Bank zero is for the BSSID and bank one for the RA.
+                    Each filter bank has registers for four interfaces. Unlike the Wi-Fi 4 MAC there are
+                    no mask registers, the enable bit lives in ADDR_HIGH.
+                    "
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            RX_DMA_LIST:
+                addressOffset: 0x84
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            MAC_INTERRUPT:
+                addressOffset: 0xc48
+                description: Status and clear for the WIFI_MAC interrupt
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            PWR_INTERRUPT:
+                addressOffset: 0x90b0
+                description: Status and clear for the WIFI_PWR interrupt
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            TXQ_STATE:
+                addressOffset: 0xcac
+                description: State of transmission queues
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            TX_SLOT_CONFIG%s:
+                dim: 5
+                dimIncrement: 0x10
+                description: Used to configure the TX slot.
+                addressOffset: 0xd20
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            CRYPTO_KEY_SLOT%s:
+                dim: 25
+                dimIncrement: 40
+                addressOffset: 0x1800
+                description: Cryptographic keys for MPDU encapsulation and decapsulation
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+            CRYPTO_CONTROL:
+                addressOffset: 0x800
+                description: Control registers for hardware crypto
+                registers:
+                    DUMMY:
+                        addressOffset: 0x0
+
+_include:
+    - "../../../common_patches/wifi/mac/rx.yaml"
+    - "wifi_filter.yaml"
+    - "wifi_tx.yaml"
+    - "../../../common_patches/wifi/mac/mac_interrupt.yaml"
+    - "../../../common_patches/wifi/mac/pwr_interrupt.yaml"
+    - "../../../common_patches/wifi/mac/crypto.yaml"
