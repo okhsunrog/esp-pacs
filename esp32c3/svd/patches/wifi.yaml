@@ -66,6 +66,106 @@ _add:
                 addressOffset: 0x2000
                 access: read
                 description: Current value of the MAC timer
+            TSF_CTRL:
+                addressOffset: 0x200c
+                access: read-write
+                description: "Control for the per-interface TSF counters. Written by tsf_hal_get_counter_value, tsf_hal_set_counter_value and tsf_hal_set_tbtt_start_time."
+                fields:
+                    LATCH:
+                        description: Bit n latches the TSF counter of interface n into TSF_TIME for reading. Cleared again after the read.
+                        bitOffset: 0
+                        bitWidth: 4
+                    LOAD:
+                        description: Bit n loads the TSF counter of interface n from TSF_LOAD.
+                        bitOffset: 4
+                        bitWidth: 4
+                    LOAD_TBTT_START:
+                        description: Bit n loads the TBTT start time of interface n from TBTT_START.
+                        bitOffset: 8
+                        bitWidth: 4
+            TSF_LOAD_LOW:
+                addressOffset: 0x2010
+                access: read-write
+                description: Low word of the value loaded into a TSF counter
+            TSF_LOAD_HIGH:
+                addressOffset: 0x2014
+                access: read-write
+                description: High word of the value loaded into a TSF counter
+            TSF_TIME_LOW:
+                addressOffset: 0x2018
+                access: read
+                description: Low word of the latched TSF counter
+            TSF_TIME_HIGH:
+                addressOffset: 0x201c
+                access: read
+                description: High word of the latched TSF counter
+            TBTT_START:
+                addressOffset: 0x2020
+                access: read-write
+                description: TBTT start time, loaded into an interface with TSF_CTRL.LOAD_TBTT_START
+                fields:
+                    START_TIME:
+                        bitOffset: 0
+                        bitWidth: 26
+            TSF_CFG%s:
+                dim: 4
+                dimIncrement: 0xc
+                addressOffset: 0x2028
+                access: read-write
+                description: TSF and TBTT configuration of an interface
+                fields:
+                    TBTT_ENABLE:
+                        description: Set by tsf_hal_set_tbtt_enable
+                        bitOffset: 26
+                        bitWidth: 1
+                    TSF_ENABLE_AUX:
+                        description: Bits 27 and 28 are set together with TSF_ENABLE by tsf_hal_set_tsf_enable, meaning unknown
+                        bitOffset: 27
+                        bitWidth: 2
+                    TSF_ENABLE:
+                        description: Enables the TSF counter, checked by tsf_hal_is_tsf_enabled
+                        bitOffset: 31
+                        bitWidth: 1
+            TBTT_CFG%s:
+                dim: 4
+                dimIncrement: 0xc
+                addressOffset: 0x2030
+                access: read-write
+                description: TBTT interval and early time of an interface
+                fields:
+                    INTERVAL:
+                        description: Beacon interval in TUs (the blob shifts microseconds right by 10)
+                        bitOffset: 0
+                        bitWidth: 16
+                    EARLY_TIME:
+                        description: How much earlier than the TBTT the interrupt fires, set by tsf_hal_set_tbtt_early_time
+                        bitOffset: 16
+                        bitWidth: 16
+            TSF_TIMER_CFG%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x205c
+                access: read-write
+                description: Configuration of a TSF timer
+                fields:
+                    SOC_WAKEUP:
+                        description: Wake the SoC when the timer fires, set by tsf_hal_set_timer_soc_wakeup_enable
+                        bitOffset: 30
+                        bitWidth: 1
+                    ENABLE:
+                        description: Set by tsf_hal_set_timer_enable
+                        bitOffset: 31
+                        bitWidth: 1
+            TSF_TIMER_TARGET%s:
+                dim: 4
+                dimIncrement: 0x8
+                addressOffset: 0x2060
+                access: read-write
+                description: Target of a TSF timer, written by tsf_hal_set_timer_target
+            PWR_INT_ENABLE:
+                addressOffset: 0x2110
+                access: read-write
+                description: "Interrupt enable for the WIFI_PWR interrupt. TBTT of interface n is bit (4 - n), TSF timer n is bit (8 - n)."
 
 WIFI:
     _add:
