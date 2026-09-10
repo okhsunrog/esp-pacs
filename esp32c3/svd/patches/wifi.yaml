@@ -43,6 +43,7 @@ _add:
                 dimIncrement: 0x4c
                 addressOffset: 0x11e0
             PLCP2%s:
+                description: "Misc TX slot control: bit 4 (PLCP2 of the S2), bits 6..13 expected response rate, bits 22..23 HT, bits 24..27 TXOP frame count, bits 28..29 interface"
                 dim: 5
                 dimIncrement: 0x4c
                 addressOffset: 0x11e4
@@ -51,10 +52,16 @@ _add:
                 dimIncrement: 0x4c
                 addressOffset: 0x11e8
             PMD%s:
-                description: Location unverified on the ESP32-C3
+                description: TX result of the slot, read by hal_mac_get_txq_pmd
                 dim: 5
                 dimIncrement: 0x4c
-                addressOffset: 0x11ec
+                addressOffset: 0x11f0
+            TX_PTI%s:
+                description: Coexistence priorities of the TX slot, written by hal_set_tx_pti
+                dim: 5
+                dimIncrement: 0x4c
+                addressOffset: 0x11cc
+                access: read-write
             MAC_TIME:
                 addressOffset: 0x2000
                 access: read
